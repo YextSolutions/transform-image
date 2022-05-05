@@ -32,7 +32,6 @@ export const removeBackground = async (beverage: BeverageEntity) => {
       },
     };
 
-    console.log(`Editing ${beverage.entityId} with imageUrl ${imageUrl}`);
     await editKgEntity(public_id, requestBody);
   }
 };
@@ -49,30 +48,43 @@ const uploadImageAndRemoveBackground = async (
   signature: string,
   timestamp: number
 ): Promise<string> => {
-  const response = await axiod.post(
-    "https://api.cloudinary.com/v1_1/yext/image/upload",
-    {
-      file,
-      public_id,
-      api_key: CLOUDINARY_API_KEY,
-      eager,
-      signature,
-      timestamp,
-    },
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
+  console.log(`Uploading ${public_id} and transforming ${file}`);
 
-  return response.data.eager[0].url;
+  try {
+    const response = await axiod.post(
+      "https://api.cloudinary.com/v1_1/yext/image/upload",
+      {
+        file,
+        public_id,
+        api_key: CLOUDINARY_API_KEY,
+        eager,
+        signature,
+        timestamp,
+      },
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return response.data.eager[0].url;
+  } catch (error) {
+    if (error.response) {
+      console.error(`${error.response.status}: ${error.response.data}`);
+    }
+    throw error;
+  }
 };
 
 export const editKgEntity = async (
   entityId: string,
   requestBody: { primaryPhoto: PrimaryPhoto }
 ): Promise<string> => {
+  console.log(
+    `Adding transformed image ${requestBody.primaryPhoto.image.url} to ${entityId}`
+  );
+
   try {
     const res = await axiod.put(
       `https://api-sandbox.yext.com/v2/accounts/3155222/entities/${entityId}`,
