@@ -48,7 +48,7 @@ const uploadImageAndRemoveBackground = async (
   signature: string,
   timestamp: number
 ): Promise<string> => {
-  console.log(`Uploading ${public_id} and transforming ${file}`);
+  console.log(`Uploading ${public_id} to Cloudinary and transforming ${file}`);
 
   try {
     const response = await axiod.post(
@@ -82,7 +82,7 @@ export const editKgEntity = async (
   requestBody: { primaryPhoto: PrimaryPhoto }
 ): Promise<string> => {
   console.log(
-    `Adding transformed image ${requestBody.primaryPhoto.image.url} to ${entityId}`
+    `Adding transformed image ${requestBody.primaryPhoto.image.url} to ${entityId} in KG`
   );
 
   try {
