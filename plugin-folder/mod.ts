@@ -1,6 +1,6 @@
 import { encodeToString } from "https://deno.land/std@0.97.0/encoding/hex.ts";
 import axiod from "https://deno.land/x/axiod@0.23.2/mod.ts";
-import { BeverageEntity } from "./types.ts";
+import { BeverageEntity, PrimaryPhoto } from "./types.ts";
 
 declare const CLOUDINARY_API_KEY: string;
 declare const CLOUDINARY_SECRET: string;
@@ -8,7 +8,6 @@ declare const YEXT_KNOWLEDGE_API_KEY: string;
 
 const eager = "f_png,e_bgremoval";
 
-//TODO: add secrets to resource file
 export const removeBackground = async (beverage: BeverageEntity) => {
   const timestamp = Math.floor(Date.now() / 1000);
   const public_id = `${beverage.entityId}`;
@@ -17,7 +16,7 @@ export const removeBackground = async (beverage: BeverageEntity) => {
     `eager=${eager}&public_id=${public_id}&timestamp=${timestamp}${CLOUDINARY_SECRET}`
   );
 
-  if (beverage.primaryProfile?.primaryPhoto.image.url) {
+  if (beverage.primaryProfile.primaryPhoto?.image.url) {
     const imageUrl = await uploadImageAndRemoveBackground(
       beverage.primaryProfile.primaryPhoto.image.url,
       public_id,
@@ -26,9 +25,6 @@ export const removeBackground = async (beverage: BeverageEntity) => {
     );
 
     const requestBody = {
-      meta: {
-        id: public_id,
-      },
       primaryPhoto: {
         image: {
           url: imageUrl,
@@ -36,6 +32,7 @@ export const removeBackground = async (beverage: BeverageEntity) => {
       },
     };
 
+    console.log(`Editing ${beverage.entityId} with imageUrl ${imageUrl}`);
     await editKgEntity(public_id, requestBody);
   }
 };
@@ -74,13 +71,12 @@ const uploadImageAndRemoveBackground = async (
 
 export const editKgEntity = async (
   entityId: string,
-  // TODO: add kg entity type
-  data: any
+  requestBody: { primaryPhoto: PrimaryPhoto }
 ): Promise<string> => {
   try {
     const res = await axiod.put(
       `https://api-sandbox.yext.com/v2/accounts/3155222/entities/${entityId}`,
-      data,
+      requestBody,
       {
         params: {
           api_key: YEXT_KNOWLEDGE_API_KEY,

@@ -1,10 +1,10 @@
-interface BeverageEntity {
+export interface PrimaryPhoto {
+  image: { url: string };
+}
+
+export interface BeverageEntity {
   entityId: string;
   primaryProfile: {
-    primaryPhoto?: {
-      image: {
-        url: string;
-      };
-    };
+    primaryPhoto?: PrimaryPhoto;
   };
 }
