@@ -1,38 +1,28 @@
 import { encodeToString } from "https://deno.land/std@0.97.0/encoding/hex.ts";
 import axiod from "https://deno.land/x/axiod@0.23.2/mod.ts";
-import { BeverageEntity, PrimaryPhoto } from "./types.ts";
 
 declare const CLOUDINARY_API_KEY: string;
-declare const CLOUDINARY_SECRET: string;
-declare const YEXT_KNOWLEDGE_API_KEY: string;
+declare const CLOUDINARY_API_SECRET: string;
 
 const eager = "f_png,e_bgremoval";
 
-export const removeBackground = async (beverage: BeverageEntity) => {
+export const removeBackground = async (input: string) => {
   const timestamp = Math.floor(Date.now() / 1000);
-  const public_id = `${beverage.entityId}`;
+  const [public_id, url] = input.split("|");
 
   const signature = await generateCloudinarySignature(
-    `eager=${eager}&public_id=${public_id}&timestamp=${timestamp}${CLOUDINARY_SECRET}`
+    `eager=${eager}&public_id=${public_id}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`
   );
 
-  if (beverage.primaryProfile.primaryPhoto?.image.url) {
+  if (public_id && url) {
     const imageUrl = await uploadImageAndRemoveBackground(
-      beverage.primaryProfile.primaryPhoto.image.url,
+      url,
       public_id,
       signature,
       timestamp
     );
 
-    const requestBody = {
-      primaryPhoto: {
-        image: {
-          url: imageUrl,
-        },
-      },
-    };
-
-    await editKgEntity(public_id, requestBody);
+    return imageUrl;
   }
 };
 
@@ -69,35 +59,6 @@ const uploadImageAndRemoveBackground = async (
     );
 
     return response.data.eager[0].url;
-  } catch (error) {
-    if (error.response) {
-      console.error(`${error.response.status}: ${error.response.data}`);
-    }
-    throw error;
-  }
-};
-
-export const editKgEntity = async (
-  entityId: string,
-  requestBody: { primaryPhoto: PrimaryPhoto }
-): Promise<string> => {
-  console.log(
-    `Adding transformed image ${requestBody.primaryPhoto.image.url} to ${entityId} in KG`
-  );
-
-  try {
-    const res = await axiod.put(
-      `https://api-sandbox.yext.com/v2/accounts/3155222/entities/${entityId}`,
-      requestBody,
-      {
-        params: {
-          api_key: YEXT_KNOWLEDGE_API_KEY,
-          v: "20220322",
-        },
-      }
-    );
-
-    return res.data.response.meta.id;
   } catch (error) {
     if (error.response) {
       console.error(`${error.response.status}: ${error.response.data}`);
