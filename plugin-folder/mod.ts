@@ -15,7 +15,7 @@ export const removeBackground = async (input: string) => {
   );
 
   if (public_id && url) {
-    const imageUrl = await uploadImageAndRemoveBackground(
+    const imageUrl = await uploadImageAndTransform(
       url,
       public_id,
       signature,
@@ -32,7 +32,7 @@ const generateCloudinarySignature = async (params: string) => {
   return encodeToString(new Uint8Array(digest));
 };
 
-const uploadImageAndRemoveBackground = async (
+const uploadImageAndTransform = async (
   file: string,
   public_id: string,
   signature: string,
