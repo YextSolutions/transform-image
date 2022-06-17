@@ -3,6 +3,8 @@
   "$schema": "https://schema.yext.com/config/platform/plugin/v1",
   "globals": {
     "CLOUDINARY_API_KEY": "${{CLOUDINARY_API_KEY}}",
-    "CLOUDINARY_API_SECRET": "${{CLOUDINARY_API_SECRET}}"
+    "CLOUDINARY_API_SECRET": "${{CLOUDINARY_API_SECRET}}",
+    "YEXT_ACCOUNT": "${{YEXT_ACCOUNT}}",
+    "YEXT_ACCOUNT_API_KEY": "${{YEXT_ACCOUNT_API_KEY}}"
   }
 }

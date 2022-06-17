@@ -1,10 +1,31 @@
 import { encodeToString } from "https://deno.land/std@0.97.0/encoding/hex.ts";
 import axiod from "https://deno.land/x/axiod@0.23.2/mod.ts";
+import { editEntity } from "./api.ts";
+import { WebhookPayload } from "./types.ts";
 
 declare const CLOUDINARY_API_KEY: string;
 declare const CLOUDINARY_API_SECRET: string;
 
 const eager = "f_png,e_bgremoval";
+
+export const removeBackgroundHook = async (payload?: WebhookPayload) => {
+  if (
+    payload?.meta.eventType === "ENTITY_CREATED" &&
+    payload?.changedFields.fieldNames.includes("primaryPhoto")
+  ) {
+    console.log(`Transforming primaryPhoto for Entity ${payload?.entityId} `);
+
+    const imageUrl = await removeBackground(
+      `${payload.entityId}|${payload.primaryProfile.primaryPhoto.image.url}`
+    );
+
+    if (imageUrl) {
+      await editEntity(payload.entityId, {
+        primaryPhoto: { image: { url: imageUrl } },
+      });
+    }
+  }
+};
 
 export const removeBackground = async (input: string) => {
   const timestamp = Math.floor(Date.now() / 1000);
