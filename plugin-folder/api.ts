@@ -1,6 +1,5 @@
 import axiod from "https://deno.land/x/axiod@0.23.2/mod.ts";
 
-declare const YEXT_ACCOUNT: string;
 declare const YEXT_ACCOUNT_API_KEY: string;
 
 export const editEntity = async (
@@ -10,7 +9,7 @@ export const editEntity = async (
 ) => {
   try {
     await axiod.put(
-      `https://api-sandbox.yext.com/v2/accounts/${YEXT_ACCOUNT}/entities/${entityId}`,
+      `https://api-sandbox.yext.com/v2/accounts/me/entities/${entityId}`,
       data,
       {
         params: {

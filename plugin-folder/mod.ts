@@ -9,10 +9,7 @@ declare const CLOUDINARY_API_SECRET: string;
 const eager = "f_png,e_bgremoval";
 
 export const removeBackgroundHook = async (payload?: WebhookPayload) => {
-  if (
-    payload?.meta.eventType === "ENTITY_CREATED" &&
-    payload?.changedFields.fieldNames.includes("primaryPhoto")
-  ) {
+  if (payload?.changedFields.fieldNames.includes("primaryPhoto")) {
     console.log(`Transforming primaryPhoto for Entity ${payload?.entityId} `);
 
     const imageUrl = await removeBackground(
@@ -21,7 +18,7 @@ export const removeBackgroundHook = async (payload?: WebhookPayload) => {
 
     if (imageUrl) {
       await editEntity(payload.entityId, {
-        primaryPhoto: { image: { url: imageUrl } },
+        c_transformedPhoto: { url: imageUrl },
       });
     }
   }
